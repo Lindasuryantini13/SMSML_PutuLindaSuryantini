@@ -1,0 +1,17 @@
+name: telco_churn_classification
+
+python_env: python_env.yaml
+
+entry_points:
+  main:
+    parameters:
+      data: {type: string, default: "preprocessed_data.csv"}
+      experiment: {type: string, default: "telco-churn-classification"}
+    command: "python modelling.py --data {data} --experiment {experiment}"
+
+  tuning:
+    parameters:
+      data: {type: string, default: "preprocessed_data.csv"}
+      experiment: {type: string, default: "telco-churn-tuning"}
+      method: {type: string, default: "all"}
+    command: "python modelling_tuning.py --data {data} --experiment {experiment} --method {method}"

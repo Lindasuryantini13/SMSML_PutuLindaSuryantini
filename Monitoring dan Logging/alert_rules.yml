@@ -1,0 +1,53 @@
+groups:
+  - name: model_serving_alerts
+    interval: 10s
+    rules:
+      - alert: HighInferenceLatency
+        expr: histogram_quantile(0.95, rate(inference_latency_seconds_bucket[1m])) > 0.5
+        for: 1m
+        labels:
+          severity: warning
+          service: telco-churn-api
+        annotations:
+          summary: High inference latency detected
+          description: "95th percentile latency is {{ $value }}s (threshold: 0.5s)"
+
+      - alert: HighErrorRate
+        expr: rate(model_error_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          service: telco-churn-api
+        annotations:
+          summary: High model error rate
+          description: "Error rate is {{ $value }} errors/sec over the last 5 minutes"
+
+      - alert: ModelServiceDown
+        expr: up{job="model-serving"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: telco-churn-api
+        annotations:
+          summary: Model serving API is down
+          description: "The model serving API has been down for more than 1 minute"
+
+      - alert: TooManyActiveRequests
+        expr: active_inference_requests > 10
+        for: 2m
+        labels:
+          severity: warning
+          service: telco-churn-api
+        annotations:
+          summary: Too many active requests
+          description: "Active requests count is {{ $value }} (threshold: 10)"
+
+      - alert: HighChurnPredictionRate
+        expr: rate(model_prediction_total{prediction_class="churn"}[10m]) / rate(model_prediction_total[10m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: telco-churn-api
+        annotations:
+          summary: High churn prediction rate
+          description: "Churn prediction rate is {{ $value | humanizePercentage }} over the last 10 minutes"

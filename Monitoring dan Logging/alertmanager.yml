@@ -1,0 +1,40 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'default-receiver'
+  routes:
+    - match:
+        severity: critical
+      receiver: 'critical-receiver'
+      continue: true
+    - match:
+        severity: warning
+      receiver: 'warning-receiver'
+
+receivers:
+  - name: 'default-receiver'
+    webhook_configs:
+      - url: 'https://discord.com/api/webhooks/1453638875221069835/dtWaCGoHk_D03VerH2iW5MDo-v3S89XIktlEM5595GMtcGUiyv4Ydb6TsiOLh6dKDPS7'
+        send_resolved: true
+
+  - name: 'critical-receiver'
+    webhook_configs:
+      - url: 'https://discord.com/api/webhooks/1453638875221069835/dtWaCGoHk_D03VerH2iW5MDo-v3S89XIktlEM5595GMtcGUiyv4Ydb6TsiOLh6dKDPS7'
+        send_resolved: true
+
+  - name: 'warning-receiver'
+    webhook_configs:
+      - url: 'https://discord.com/api/webhooks/1453638875221069835/dtWaCGoHk_D03VerH2iW5MDo-v3S89XIktlEM5595GMtcGUiyv4Ydb6TsiOLh6dKDPS7'
+        send_resolved: true
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service']
